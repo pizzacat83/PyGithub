@@ -153,17 +153,16 @@ class PaginatedList(PaginatedListBase):
             headers, data = self.__requester.requestJsonAndCheck(
                 "GET", self.__firstUrl, parameters=params, headers=self.__headers
             )
-            if "link" not in headers:
-                if data and "total_count" in data:
-                    self.__totalCount = data["total_count"]
-                elif data:
-                    self.__totalCount = len(data)
-                else:
-                    self.__totalCount = 0
-            else:
+            if data and "total_count" in data:
+                self.__totalCount = data["total_count"]
+            elif "link" in headers:
                 links = self.__parseLinkHeader(headers)
                 lastUrl = links.get("last")
                 self.__totalCount = int(parse_qs(lastUrl)["page"][0])
+            elif data:
+                self.__totalCount = len(data)
+            else:
+                self.__totalCount = 0
         return self.__totalCount
 
     def _getLastPageUrl(self):
